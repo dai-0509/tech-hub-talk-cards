@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Hub トークカード - 管理者画面</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .admin-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .admin-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .qr-section {
+            text-align: center;
+        }
+
+        .qr-code-container {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .qr-code {
+            max-width: 250px;
+            width: 100%;
+            height: auto;
+        }
+
+        .url-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        .instructions {
+            background: #fff3e0;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #ff9800;
+        }
+
+        .status-section {
+            text-align: center;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin: 10px 0;
+        }
+
+        .quick-access {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .quick-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .network-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .network-info h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .network-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .admin-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>🔧 Tech Hub トークカード管理画面</h1>
+            <p>参加者がスマホでQRコードを読み取ってカードを引けます</p>
+        </div>
+
+        <div class="admin-grid">
+            <div class="admin-card qr-section">
+                <h2>📱 参加者用QRコード</h2>
+                <div class="qr-code-container">
+                    <img id="qrCodeImage" class="qr-code" alt="QRコード" style="display: none;">
+                    <div id="qrLoading">QRコード生成中...</div>
+                </div>
+                <div class="url-info">
+                    <strong>アクセスURL:</strong><br>
+                    <span id="accessUrl">読み込み中...</span>
+                </div>
+                <div class="instructions">
+                    <h4>🎯 使い方</h4>
+                    <ol>
+                        <li>参加者にQRコードをスキャンしてもらう</li>
+                        <li>各自のスマホでカードを引いてもらう</li>
+                        <li>引いたテーマで5〜10分トークタイム！</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="admin-card status-section">
+                <h2>⚡ サーバー状態</h2>
+                <div class="status-indicator">
+                    <span>🟢</span>
+                    <span>サーバー稼働中</span>
+                </div>
+                
+                <div class="network-info">
+                    <h4>ネットワーク情報</h4>
+                    <div class="network-item">
+                        <span>IPアドレス:</span>
+                        <span id="serverIP">取得中...</span>
+                    </div>
+                    <div class="network-item">
+                        <span>ポート:</span>
+                        <span id="serverPort">取得中...</span>
+                    </div>
+                </div>
+
+                <div class="quick-access">
+                    <a href="/" class="quick-btn" target="_blank">参加者画面を開く</a>
+                    <button onclick="refreshQR()" class="quick-btn">QR更新</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <h2>📊 イベント用Tips</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div class="instructions">
+                    <h4>🎪 イベント進行</h4>
+                    <ul>
+                        <li>QRコードをプロジェクターで投影</li>
+                        <li>参加者全員がアクセスできるまで待機</li>
+                        <li>一斉にカードを引いてもらう</li>
+                        <li>順番にトークタイム開始</li>
+                    </ul>
+                </div>
+                <div class="instructions">
+                    <h4>🔧 技術仕様</h4>
+                    <ul>
+                        <li>同時接続: 制限なし</li>
+                        <li>カードデータ: ローカル管理</li>
+                        <li>レスポンシブ対応</li>
+                        <li>オフライン動作可能</li>
+                    </ul>
+                </div>
+                <div class="instructions">
+                    <h4>💡 カスタマイズ</h4>
+                    <ul>
+                        <li>cards.jsでテーマ編集</li>
+                        <li>styles.cssでデザイン変更</li>
+                        <li>フィルター機能活用</li>
+                        <li>30種類→自由に追加可</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadQRCode() {
+            try {
+                const response = await fetch('/qr');
+                const data = await response.json();
+                
+                document.getElementById('qrCodeImage').src = data.qrCode;
+                document.getElementById('qrCodeImage').style.display = 'block';
+                document.getElementById('qrLoading').style.display = 'none';
+                
+                document.getElementById('accessUrl').textContent = data.url;
+                document.getElementById('serverIP').textContent = data.ip;
+                document.getElementById('serverPort').textContent = data.port;
+            } catch (error) {
+                document.getElementById('qrLoading').textContent = 'QRコード生成エラー';
+                console.error('QRコード読み込みエラー:', error);
+            }
+        }
+
+        function refreshQR() {
+            document.getElementById('qrCodeImage').style.display = 'none';
+            document.getElementById('qrLoading').style.display = 'block';
+            document.getElementById('qrLoading').textContent = 'QRコード更新中...';
+            loadQRCode();
+        }
+
+        // ページロード時にQRコードを生成
+        document.addEventListener('DOMContentLoaded', loadQRCode);
+
+        // 5分ごとにQRコードを自動更新
+        setInterval(loadQRCode, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
