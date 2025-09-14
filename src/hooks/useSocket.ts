@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react'
-import { io, Socket } from 'socket.io-client'
-import type { Card, GameState, SocketEvents } from '../types'
+import type { Card, GameState } from '../types'
 
 export const useSocket = () => {
-  const [socket, setSocket] = useState<Socket<SocketEvents, SocketEvents> | null>(null)
   const [gameState, setGameState] = useState<GameState>({
     availableCards: [],
     usedCards: [],
@@ -13,58 +11,65 @@ export const useSocket = () => {
   })
   const [participants, setParticipants] = useState(0)
   const [error, setError] = useState<string | null>(null)
+  const [isConnected, setIsConnected] = useState(false)
 
+  // HTTP polling for Vercel compatibility
   useEffect(() => {
-    const newSocket = io(window.location.origin, {
-      transports: ['websocket', 'polling']
-    })
-
-    newSocket.on('connect', () => {
-      console.log('✅ Connected to server')
-      newSocket.emit('game:join')
-    })
-
-    newSocket.on('game:state', (state) => {
-      setGameState(state)
-    })
-
-    newSocket.on('card:drawn', ({ card, gameState: newGameState }) => {
-      setGameState(newGameState)
-    })
-
-    newSocket.on('game:reset', () => {
-      setError(null)
-    })
-
-    newSocket.on('participants:update', (count) => {
-      setParticipants(count)
-    })
-
-    newSocket.on('error', (message) => {
-      setError(message)
-    })
-
-    newSocket.on('disconnect', () => {
-      console.log('❌ Disconnected from server')
-    })
-
-    setSocket(newSocket)
-
-    return () => {
-      newSocket.close()
+    const fetchGameState = async () => {
+      try {
+        const response = await fetch('/api/state')
+        if (response.ok) {
+          const state = await response.json()
+          setGameState(state)
+          setIsConnected(true)
+        }
+      } catch (err) {
+        console.error('Failed to fetch game state:', err)
+        setIsConnected(false)
+      }
     }
+
+    // Initial fetch
+    fetchGameState()
+
+    // Poll every 1 second for updates
+    const interval = setInterval(fetchGameState, 1000)
+
+    return () => clearInterval(interval)
   }, [])
 
-  const drawCard = (filters?: { category?: string; difficulty?: string }) => {
-    if (socket && !gameState.isDrawing) {
+  const drawCard = async (filters?: { category?: string; difficulty?: string }) => {
+    if (gameState.isDrawing) return
+
+    try {
       setError(null)
-      socket.emit('card:draw', filters)
+      const response = await fetch('/api/draw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(filters || {})
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        setError(errorData.error || 'カードの抽選に失敗しました')
+      }
+    } catch (err) {
+      setError('通信エラーが発生しました')
+      console.error('Draw card error:', err)
     }
   }
 
-  const resetGame = () => {
-    if (socket) {
-      socket.emit('game:reset')
+  const resetGame = async () => {
+    try {
+      const response = await fetch('/api/reset', {
+        method: 'POST'
+      })
+
+      if (response.ok) {
+        setError(null)
+      }
+    } catch (err) {
+      console.error('Reset game error:', err)
     }
   }
 
@@ -74,6 +79,6 @@ export const useSocket = () => {
     error,
     drawCard,
     resetGame,
-    isConnected: socket?.connected || false
+    isConnected
   }
 }
