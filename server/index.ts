@@ -5,8 +5,8 @@ import QRCode from 'qrcode'
 import { networkInterfaces } from 'os'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import type { GameState, SocketEvents } from '../shared/types.js'
-import { techHubCards } from '../shared/cards.js'
+import type { GameState, SocketEvents } from '../shared/types'
+import { techHubCards } from '../shared/cards'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
