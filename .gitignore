@@ -72,7 +72,7 @@ jspm_packages/
 
 # Gatsby files
 .cache/
-public
+# public - needed for Vercel deployment
 
 # Storybook build outputs
 .out
