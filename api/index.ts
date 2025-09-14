@@ -126,20 +126,25 @@ app.post('/api/draw', async (req, res) => {
 
   gameState.isDrawing = true
 
-  // Simulate drawing delay
-  setTimeout(() => {
-    const randomIndex = Math.floor(Math.random() * filteredCards.length)
-    const drawnCard = filteredCards[randomIndex]
+  // Simulate brief drawing delay
+  await new Promise(resolve => setTimeout(resolve, 1000))
 
-    gameState.currentCard = drawnCard
-    gameState.availableCards = gameState.availableCards.filter(card => card.id !== drawnCard.id)
-    gameState.usedCards.push(drawnCard)
-    gameState.isDrawing = false
+  const randomIndex = Math.floor(Math.random() * filteredCards.length)
+  const drawnCard = filteredCards[randomIndex]
 
-    console.log(`🎯 Card drawn: "${drawnCard.title}"`)
-  }, 2000)
+  gameState.currentCard = drawnCard
+  gameState.availableCards = gameState.availableCards.filter(card => card.id !== drawnCard.id)
+  gameState.usedCards.push(drawnCard)
+  gameState.isDrawing = false
 
-  res.json({ success: true, message: 'カードを引いています...' })
+  console.log(`🎯 Card drawn: "${drawnCard.title}"`)
+
+  // Return the drawn card and updated state
+  res.json({ 
+    success: true, 
+    card: drawnCard,
+    gameState: gameState
+  })
 })
 
 app.post('/api/reset', (_req, res) => {

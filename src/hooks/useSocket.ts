@@ -49,7 +49,13 @@ export const useSocket = () => {
         body: JSON.stringify(filters || {})
       })
 
-      if (!response.ok) {
+      if (response.ok) {
+        const result = await response.json()
+        if (result.success && result.card && result.gameState) {
+          // Update state immediately with the response
+          setGameState(result.gameState)
+        }
+      } else {
         const errorData = await response.json()
         setError(errorData.error || 'カードの抽選に失敗しました')
       }
