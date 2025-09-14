@@ -2,10 +2,14 @@
   "version": 2,
   "builds": [
     {
+      "src": "dist/client/**/*",
+      "use": "@vercel/static"
+    },
+    {
       "src": "api/index.ts",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["shared/**", "dist/client/**"]
+        "includeFiles": ["shared/**"]
       }
     }
   ],
@@ -15,16 +19,16 @@
       "dest": "api/index.ts"
     },
     {
-      "src": "/admin",
-      "dest": "api/index.ts"
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|html|woff|woff2|ttf|eot))",
+      "dest": "dist/client/$1"
     },
     {
-      "src": "/socket.io/(.*)",
-      "dest": "api/index.ts"
+      "src": "/admin",
+      "dest": "dist/client/index.html"
     },
     {
       "src": "/(.*)",
-      "dest": "api/index.ts"
+      "dest": "dist/client/index.html"
     }
   ]
 }

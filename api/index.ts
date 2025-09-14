@@ -30,6 +30,8 @@ app.get('/api/qr', async (req, res) => {
     const protocol = req.get('x-forwarded-proto') || 'https'
     const url = `${protocol}://${host}`
     
+    console.log('QR Code generation - Host:', host, 'Protocol:', protocol, 'URL:', url)
+    
     const qrCode = await QRCode.toDataURL(url, {
       width: 300,
       margin: 2,
@@ -47,7 +49,7 @@ app.get('/api/qr', async (req, res) => {
     })
   } catch (error) {
     console.error('QR code generation error:', error)
-    res.status(500).json({ error: 'QRコード生成に失敗しました' })
+    res.status(500).json({ error: 'QRコード生成に失敗しました', details: String(error) })
   }
 })
 

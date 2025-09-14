@@ -22,10 +22,17 @@ export const AdminPanel = ({ gameState, participants, onReset }: AdminPanelProps
     try {
       setLoading(true)
       const response = await fetch('/api/qr')
-      const data = await response.json()
-      setQrData(data)
+      
+      if (response.ok) {
+        const data = await response.json()
+        setQrData(data)
+      } else {
+        console.error('QRコード取得失敗:', response.status, response.statusText)
+        setQrData(null)
+      }
     } catch (error) {
       console.error('QRコード読み込みエラー:', error)
+      setQrData(null)
     } finally {
       setLoading(false)
     }
