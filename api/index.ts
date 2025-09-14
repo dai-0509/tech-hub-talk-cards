@@ -2,8 +2,8 @@ import express from 'express'
 import QRCode from 'qrcode'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import type { GameState } from '../shared/types.js'
-import { techHubCards } from '../shared/cards.js'
+import type { GameState } from '../shared/types'
+import { techHubCards } from '../shared/cards'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
