@@ -26,7 +26,8 @@ let gameState: GameState = {
   participants: 0
 }
 
-// Static files are served by Vercel directly from public directory
+// Static files - serve from public directory  
+app.use(express.static(path.join(__dirname, '../public')))
 
 // Health check endpoint
 app.get('/api/health', (_req, res) => {
@@ -118,7 +119,14 @@ app.post('/api/reset', (_req, res) => {
   res.json({ success: true, message: 'ゲームがリセットされました' })
 })
 
-// SPA routing is handled by Vercel configuration
+// SPA routing - serve index.html for all non-API routes
+app.get('/admin', (_req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'))
+})
+
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'))
+})
 
 // Error handling middleware
 app.use((err, _req, res, _next) => {
