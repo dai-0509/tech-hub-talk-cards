@@ -26,9 +26,6 @@ let gameState: GameState = {
   participants: 0
 }
 
-// Static files - serve from public directory  
-app.use(express.static(path.join(__dirname, '../public')))
-
 // Health check endpoint
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
@@ -119,12 +116,18 @@ app.post('/api/reset', (_req, res) => {
   res.json({ success: true, message: 'ゲームがリセットされました' })
 })
 
-// SPA routing - serve index.html for all non-API routes
+// Static files - serve AFTER API routes but BEFORE SPA routes
+app.use(express.static(path.join(__dirname, '../public')))
+
+// SPA routing - admin route MUST come before wildcard route
 app.get('/admin', (_req, res) => {
+  console.log('Admin route accessed')
   res.sendFile(path.join(__dirname, '../public/index.html'))
 })
 
+// Catch-all route for SPA - MUST be last
 app.get('*', (_req, res) => {
+  console.log('Serving index.html for:', _req.path)
   res.sendFile(path.join(__dirname, '../public/index.html'))
 })
 
