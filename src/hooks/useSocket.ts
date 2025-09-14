@@ -39,29 +39,42 @@ export const useSocket = () => {
   }, [])
 
   const drawCard = async (filters?: { category?: string; difficulty?: string }) => {
-    if (gameState.isDrawing) return
+    if (gameState.isDrawing) {
+      console.log('Draw card blocked: already drawing')
+      return
+    }
 
     try {
+      console.log('Starting card draw with filters:', filters)
       setError(null)
+      
       const response = await fetch('/api/draw', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(filters || {})
       })
 
+      console.log('API response status:', response.status)
+
       if (response.ok) {
         const result = await response.json()
+        console.log('API response data:', result)
+        
         if (result.success && result.card && result.gameState) {
-          // Update state immediately with the response
+          console.log('Updating game state with drawn card:', result.card.title)
           setGameState(result.gameState)
+        } else {
+          console.error('Invalid response format:', result)
+          setError('無効なレスポンス形式です')
         }
       } else {
         const errorData = await response.json()
+        console.error('API error response:', errorData)
         setError(errorData.error || 'カードの抽選に失敗しました')
       }
     } catch (err) {
-      setError('通信エラーが発生しました')
-      console.error('Draw card error:', err)
+      console.error('Draw card error details:', err)
+      setError(`通信エラー: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
 
