@@ -138,12 +138,12 @@ export const AdminPanel = ({ gameState, participants, onReset }: AdminPanelProps
           <h2>🎯 現在のカード</h2>
           <div className="current-card-display">
             <div className="card-info">
-              <h3>{gameState.currentCard.title}</h3>
-              <p>{gameState.currentCard.description}</p>
+              <h3>{gameState.currentCard?.title || 'No Title'}</h3>
+              <p>{gameState.currentCard?.description || 'No Description'}</p>
               <div className="card-meta">
-                <span className="category">{gameState.currentCard.category}</span>
+                <span className="category">{gameState.currentCard?.category || 'Unknown'}</span>
                 <span className="difficulty">
-                  {difficultyLabels[gameState.currentCard.difficulty]}
+                  {difficultyLabels[gameState.currentCard?.difficulty as keyof typeof difficultyLabels] || gameState.currentCard?.difficulty || 'Unknown'}
                 </span>
               </div>
             </div>

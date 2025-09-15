@@ -27,14 +27,17 @@ export const CardDisplay = ({ gameState, categories, difficulties }: CardDisplay
   if (gameState.currentCard) {
     const card = gameState.currentCard
     
-    // Safe access to category and difficulty info with fallbacks
-    const categoryInfo = categories[card.category] || { 
-      name: card.category, 
+    // Ultra-safe access with multiple fallbacks
+    const categoryKey = card?.category || 'Unknown'
+    const difficultyKey = card?.difficulty || 'initial'
+    
+    const categoryInfo = categories[categoryKey] || { 
+      name: categoryKey, 
       color: '#6b7280', 
       icon: '🔹' 
     }
-    const difficultyInfo = difficulties[card.difficulty] || { 
-      name: card.difficulty, 
+    const difficultyInfo = difficulties[difficultyKey] || { 
+      name: difficultyKey, 
       color: '#6b7280', 
       description: '' 
     }
@@ -42,7 +45,7 @@ export const CardDisplay = ({ gameState, categories, difficulties }: CardDisplay
       initial: '初級',
       intermediate: '中級', 
       advanced: '上級'
-    }[card.difficulty] || card.difficulty
+    }[difficultyKey as keyof typeof difficultyLabel] || difficultyKey
     
     console.log('CardDisplay rendering card:', {
       card,
