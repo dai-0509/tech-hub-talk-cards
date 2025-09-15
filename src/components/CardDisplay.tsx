@@ -53,7 +53,7 @@ export const CardDisplay = ({ gameState, categories, difficulties }: CardDisplay
 
     return (
       <div className="card-container">
-        <div className="drawn-card" style={{ borderColor: categoryInfo.color }}>
+        <div className="drawn-card" style={{ borderColor: categoryInfo?.color || '#6b7280' }}>
           <div className="card-header">
             <span 
               className="category-badge" 
