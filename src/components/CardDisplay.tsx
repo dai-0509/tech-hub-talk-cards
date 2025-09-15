@@ -26,13 +26,30 @@ export const CardDisplay = ({ gameState, categories, difficulties }: CardDisplay
 
   if (gameState.currentCard) {
     const card = gameState.currentCard
-    const categoryInfo = categories[card.category]
-    const difficultyInfo = difficulties[card.difficulty]
+    
+    // Safe access to category and difficulty info with fallbacks
+    const categoryInfo = categories[card.category] || { 
+      name: card.category, 
+      color: '#6b7280', 
+      icon: '🔹' 
+    }
+    const difficultyInfo = difficulties[card.difficulty] || { 
+      name: card.difficulty, 
+      color: '#6b7280', 
+      description: '' 
+    }
     const difficultyLabel = {
       initial: '初級',
       intermediate: '中級', 
       advanced: '上級'
-    }[card.difficulty]
+    }[card.difficulty] || card.difficulty
+    
+    console.log('CardDisplay rendering card:', {
+      card,
+      categoryInfo,
+      difficultyInfo,
+      difficultyLabel
+    })
 
     return (
       <div className="card-container">
@@ -40,19 +57,19 @@ export const CardDisplay = ({ gameState, categories, difficulties }: CardDisplay
           <div className="card-header">
             <span 
               className="category-badge" 
-              style={{ backgroundColor: categoryInfo.color }}
+              style={{ backgroundColor: categoryInfo?.color || '#6b7280' }}
             >
-              {categoryInfo.icon} {card.category}
+              {categoryInfo?.icon || '🔹'} {card?.category || 'Unknown'}
             </span>
             <span 
               className="difficulty-badge" 
-              style={{ backgroundColor: difficultyInfo.color }}
+              style={{ backgroundColor: difficultyInfo?.color || '#6b7280' }}
             >
-              {difficultyLabel}
+              {difficultyLabel || 'Unknown'}
             </span>
           </div>
-          <h2 className="card-title">{card.title}</h2>
-          <p className="card-description">{card.description}</p>
+          <h2 className="card-title">{card?.title || 'No Title'}</h2>
+          <p className="card-description">{card?.description || 'No Description'}</p>
           <div className="card-footer">
             <small>トークタイム: 5〜10分</small>
           </div>

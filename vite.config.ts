@@ -18,6 +18,13 @@ export default defineConfig({
     }
   },
   build: {
-    outDir: 'dist/client'
+    outDir: 'dist/client',
+    sourcemap: true,
+    minify: false,
+    rollupOptions: {
+      output: {
+        manualChunks: undefined
+      }
+    }
   }
 })
