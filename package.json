@@ -40,5 +40,8 @@
     "tsx": "^4.6.2",
     "vite": "^5.0.8"
   },
-  "type": "module"
+  "type": "module",
+  "engines": {
+    "node": "18.x"
+  }
 }
