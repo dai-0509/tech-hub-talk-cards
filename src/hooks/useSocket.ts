@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { Card, GameState } from '../types'
+import type { GameState } from '../types'
 
 export const useSocket = () => {
   const [gameState, setGameState] = useState<GameState>({
@@ -9,7 +9,7 @@ export const useSocket = () => {
     isDrawing: false,
     participants: 0
   })
-  const [participants, setParticipants] = useState(0)
+  const [participants] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [isConnected, setIsConnected] = useState(false)
 
@@ -38,20 +38,19 @@ export const useSocket = () => {
     return () => clearInterval(interval)
   }, [])
 
-  const drawCard = async (filters?: { category?: string; difficulty?: string }) => {
+  const drawCard = async () => {
     if (gameState.isDrawing) {
       console.log('Draw card blocked: already drawing')
       return
     }
 
     try {
-      console.log('Starting card draw with filters:', filters)
+      console.log('Starting card draw')
       setError(null)
       
       const response = await fetch('/api/draw', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(filters || {})
+        headers: { 'Content-Type': 'application/json' }
       })
 
       console.log('API response status:', response.status)
@@ -60,7 +59,10 @@ export const useSocket = () => {
         const result = await response.json()
         console.log('API response data:', result)
         
-        if (result.success && result.card && result.gameState) {
+        if (result.success && result.message) {
+          console.log('Card draw initiated:', result.message)
+          // Don't show error - the actual card will come via polling
+        } else if (result.success && result.card && result.gameState) {
           console.log('Updating game state with drawn card:', result.card.title)
           setGameState(result.gameState)
         } else {

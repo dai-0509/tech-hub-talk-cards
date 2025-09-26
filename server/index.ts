@@ -15,7 +15,7 @@ const app = express()
 const server = createServer(app)
 const io = new Server<SocketEvents, SocketEvents>(server, {
   cors: {
-    origin: ["http://localhost:5173", "http://localhost:3001"],
+    origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:3001"],
     methods: ["GET", "POST"]
   }
 })
@@ -46,8 +46,17 @@ let gameState: GameState = {
   participants: 0
 }
 
+// CORS middleware for Express
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+  res.header('Access-Control-Allow-Headers', 'Content-Type')
+  next()
+})
+
 // Express routes
 app.use(express.static(path.join(__dirname, '../dist/client')))
+app.use(express.json())
 
 app.get('/api/qr', async (req, res) => {
   try {
@@ -74,6 +83,55 @@ app.get('/api/qr', async (req, res) => {
   }
 })
 
+// HTTP API endpoints for Vercel compatibility
+app.get('/api/state', (req, res) => {
+  res.json(gameState)
+})
+
+app.post('/api/draw', (req, res) => {
+  if (gameState.isDrawing) {
+    return res.status(400).json({ error: '現在カードを引いています。しばらくお待ちください。' })
+  }
+
+  const filteredCards = gameState.availableCards
+
+  if (filteredCards.length === 0) {
+    return res.status(400).json({ error: '利用可能なカードがありません！' })
+  }
+
+  // Set drawing state
+  gameState.isDrawing = true
+  
+  // Simulate drawing delay
+  setTimeout(() => {
+    const randomIndex = Math.floor(Math.random() * filteredCards.length)
+    const drawnCard = filteredCards[randomIndex]
+
+    // Remove card from available and add to used
+    gameState.availableCards = gameState.availableCards.filter(card => card.id !== drawnCard.id)
+    gameState.usedCards.push(drawnCard)
+    gameState.currentCard = drawnCard
+    gameState.isDrawing = false
+
+    // Broadcast to all WebSocket clients
+    io.emit('card:drawn', { card: drawnCard, gameState })
+  }, 2000)
+
+  res.json({ success: true, message: 'カードを引いています...' })
+})
+
+app.post('/api/reset', (req, res) => {
+  gameState.availableCards = [...techHubCards]
+  gameState.usedCards = []
+  gameState.currentCard = null
+  gameState.isDrawing = false
+
+  // Broadcast to all WebSocket clients
+  io.emit('game:state', gameState)
+  
+  res.json({ success: true, message: 'ゲームをリセットしました' })
+})
+
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/client/index.html'))
 })
@@ -97,24 +155,16 @@ io.on('connection', (socket) => {
     socket.emit('game:state', gameState)
   })
 
-  socket.on('card:draw', (filters) => {
+  socket.on('card:draw', () => {
     if (gameState.isDrawing) {
       socket.emit('error', '現在カードを引いています。しばらくお待ちください。')
       return
     }
 
-    let filteredCards = gameState.availableCards
+    const availableCards = gameState.availableCards
 
-    if (filters?.category && filters.category !== 'all') {
-      filteredCards = filteredCards.filter(card => card.category === filters.category)
-    }
-
-    if (filters?.difficulty && filters.difficulty !== 'all') {
-      filteredCards = filteredCards.filter(card => card.difficulty === filters.difficulty)
-    }
-
-    if (filteredCards.length === 0) {
-      socket.emit('error', '該当するカードがありません！フィルターを変更してください。')
+    if (availableCards.length === 0) {
+      socket.emit('error', '利用可能なカードがありません！')
       return
     }
 
@@ -124,8 +174,8 @@ io.on('connection', (socket) => {
 
     // Simulate drawing animation delay
     setTimeout(() => {
-      const randomIndex = Math.floor(Math.random() * filteredCards.length)
-      const drawnCard = filteredCards[randomIndex]
+      const randomIndex = Math.floor(Math.random() * availableCards.length)
+      const drawnCard = availableCards[randomIndex]
 
       // Update game state
       gameState.currentCard = drawnCard

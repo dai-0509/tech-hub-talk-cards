@@ -6,7 +6,6 @@ import { Stats } from './components/Stats'
 import { Message } from './components/Message'
 import { AdminPanel } from './components/AdminPanel'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { categories, difficulties } from './data/cards'
 import './App.css'
 
 function App() {
@@ -18,8 +17,8 @@ function App() {
     setIsAdmin(window.location.pathname === '/admin')
   }, [])
 
-  const handleDrawCard = (filters?: { category?: string; difficulty?: string }) => {
-    drawCard(filters)
+  const handleDrawCard = () => {
+    drawCard()
   }
 
   if (isAdmin) {
@@ -47,20 +46,15 @@ function App() {
           gameState={gameState}
           onDrawCard={handleDrawCard}
           onReset={resetGame}
-          categories={categories}
-          difficulties={difficulties}
         />
 
         <Stats gameState={gameState} participants={participants} />
 
         {error && <Message type="error" message={error} />}
 
-        <CardDisplay gameState={gameState} categories={categories} difficulties={difficulties} />
+        <CardDisplay gameState={gameState} />
 
         <footer className="app-footer">
-          <p>🎯 各テーマ5〜10分でお話しください</p>
-          <p>🔄 同じカードは二度と出ません（リセットまで）</p>
-          <p>⚡ リアルタイム同期対応</p>
         </footer>
       </div>
     </ErrorBoundary>

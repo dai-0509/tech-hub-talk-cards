@@ -3,8 +3,6 @@ export interface Card {
   id: number
   title: string
   description: string
-  category: string
-  difficulty: 'initial' | 'intermediate' | 'advanced'
 }
 
 export interface GameState {

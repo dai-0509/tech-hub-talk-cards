@@ -21,15 +21,32 @@ export const AdminPanel = ({ gameState, participants, onReset }: AdminPanelProps
   const loadQRCode = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/qr')
+      console.log('QRコード取得開始...')
       
-      if (response.ok) {
-        const data = await response.json()
-        setQrData(data)
-      } else {
-        console.error('QRコード取得失敗:', response.status, response.statusText)
-        setQrData(null)
+      // 複数のURLパターンを試行
+      const urls = ['/api/qr', 'http://localhost:3001/api/qr']
+      
+      for (const url of urls) {
+        try {
+          console.log(`試行中: ${url}`)
+          const response = await fetch(url)
+          console.log(`${url} レスポンス:`, response.status, response.statusText)
+          
+          if (response.ok) {
+            const data = await response.json()
+            console.log('QRコードデータ取得成功:', data)
+            setQrData(data)
+            return // 成功したら終了
+          }
+        } catch (urlError) {
+          console.error(`${url} でエラー:`, urlError)
+        }
       }
+      
+      // すべて失敗した場合
+      console.error('すべてのURL試行が失敗')
+      setQrData(null)
+      
     } catch (error) {
       console.error('QRコード読み込みエラー:', error)
       setQrData(null)
@@ -45,11 +62,6 @@ export const AdminPanel = ({ gameState, participants, onReset }: AdminPanelProps
     return () => clearInterval(interval)
   }, [])
 
-  const difficultyLabels = {
-    initial: '初級',
-    intermediate: '中級',
-    advanced: '上級'
-  }
 
   return (
     <div className="admin-container">
@@ -67,7 +79,12 @@ export const AdminPanel = ({ gameState, participants, onReset }: AdminPanelProps
             ) : qrData ? (
               <img src={qrData.qrCode} alt="QRコード" className="qr-code" />
             ) : (
-              <div className="qr-error">QRコード生成エラー</div>
+              <div className="qr-error">
+                QRコード生成エラー
+                <button onClick={loadQRCode} style={{marginLeft: '10px', padding: '5px 10px'}}>
+                  再試行
+                </button>
+              </div>
             )}
           </div>
           {qrData && (
@@ -140,12 +157,6 @@ export const AdminPanel = ({ gameState, participants, onReset }: AdminPanelProps
             <div className="card-info">
               <h3>{gameState.currentCard?.title || 'No Title'}</h3>
               <p>{gameState.currentCard?.description || 'No Description'}</p>
-              <div className="card-meta">
-                <span className="category">{gameState.currentCard?.category || 'Unknown'}</span>
-                <span className="difficulty">
-                  {difficultyLabels[gameState.currentCard?.difficulty as keyof typeof difficultyLabels] || gameState.currentCard?.difficulty || 'Unknown'}
-                </span>
-              </div>
             </div>
           </div>
         </div>
