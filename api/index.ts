@@ -1,5 +1,19 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
-import { techHubCards } from '../shared/cards.js'
+
+// Tech Hub カードデータ - 11個の新しいカード
+const techHubCards = [
+  { id: 1, title: "最近のAI事情・活用法", description: "AIの最新動向や実際の活用方法などAIについてざっくばらんに話しましょう" },
+  { id: 2, title: "今の案件の不満", description: "現在携わっているプロジェクトで困っていることなどなど" },
+  { id: 3, title: "おすすめのツール・ガジェット", description: "最近使っているおすすめのツールやガジェットはありますか？" },
+  { id: 4, title: "現場の謎ルール", description: "職場にある理解しがたいルールや慣習はありますか？" },
+  { id: 5, title: "最近ハマっていること", description: "今一番興味を持って取り組んでいることは何ですか？技術以外のことでもなんでもOK！" },
+  { id: 6, title: "情報のキャッチアップの仕方", description: "技術情報をどのように収集していますか？" },
+  { id: 7, title: "いま個人的に取り組んでいること", description: "プライベートで進めているプロジェクトや学習はありますか？" },
+  { id: 8, title: "得意分野", description: "自分の強みや得意な技術領域について教えてください" },
+  { id: 9, title: "最近の失敗談、やらかし", description: "最近経験した失敗やミスから学んだことはありますか？" },
+  { id: 10, title: "興味を持っている分野、技術", description: "今後学んでみたい技術や分野はありますか？" },
+  { id: 11, title: "キャリアについて", description: "将来のキャリアプランや目標について聞かせてください" }
+]
 
 // Game state - in production this should use a database
 let gameState = {
