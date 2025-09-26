@@ -19,12 +19,18 @@
       "dest": "/api/index.ts"
     },
     {
-      "src": "/admin",
-      "dest": "/dist/client/index.html"
-    },
-    {
       "src": "/(.*)",
       "dest": "/dist/client/$1"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/admin",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
     }
   ]
 }
