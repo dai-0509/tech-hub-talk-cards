@@ -6,6 +6,7 @@ import { Stats } from './components/Stats'
 import { Message } from './components/Message'
 import { AdminPanel } from './components/AdminPanel'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import { QRDisplay } from './components/QRDisplay'
 import './App.css'
 
 function App() {
@@ -42,11 +43,15 @@ function App() {
           </div>
         </header>
 
-        <Controls 
-          gameState={gameState}
-          onDrawCard={handleDrawCard}
-          onReset={resetGame}
-        />
+        <div className="main-controls">
+          <Controls 
+            gameState={gameState}
+            onDrawCard={handleDrawCard}
+            onReset={resetGame}
+          />
+          
+          <QRDisplay />
+        </div>
 
         <Stats gameState={gameState} participants={participants} />
 
