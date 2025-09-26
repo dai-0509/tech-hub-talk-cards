@@ -1,6 +1,6 @@
 {
   "name": "techhub-cards-v2",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Tech Hub トークカード抽選システム (TypeScript + React + WebSocket)",
   "scripts": {
     "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
