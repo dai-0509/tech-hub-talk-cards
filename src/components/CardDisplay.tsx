@@ -8,18 +8,19 @@ interface CardDisplayProps {
 export const CardDisplay = ({ gameState }: CardDisplayProps) => {
   const cardContainerRef = useRef<HTMLDivElement>(null)
 
-  // カードが表示されたら自動スクロール
+  // カードが表示されたら自動スクロール（一度だけ）
   useEffect(() => {
-    if (gameState.currentCard && cardContainerRef.current) {
+    if (gameState.currentCard && !gameState.isDrawing && cardContainerRef.current) {
+      // アニメーション終了後のカード表示時のみスクロール
       cardContainerRef.current.scrollIntoView({ 
         behavior: 'smooth', 
         block: 'center' 
       })
     }
-  }, [gameState.currentCard])
+  }, [gameState.currentCard, gameState.isDrawing])
   if (gameState.isDrawing) {
     return (
-      <div className="card-container">
+      <div className="card-container" ref={cardContainerRef}>
         <div className="card-animation">
           <div className="spinning-card">
             <div className="card-back">
@@ -30,6 +31,15 @@ export const CardDisplay = ({ gameState }: CardDisplayProps) => {
           </div>
           <p className="draw-text">カードを引いています...</p>
         </div>
+        {gameState.currentCard && (
+          <div className="drawn-card preview">
+            <h2 className="card-title">{gameState.currentCard.title}</h2>
+            <p className="card-description">{gameState.currentCard.description}</p>
+            <div className="card-footer">
+              <small>トークタイム: 5〜10分</small>
+            </div>
+          </div>
+        )}
       </div>
     )
   }

@@ -1,7 +1,9 @@
 import { VercelRequest, VercelResponse } from '@vercel/node'
+import QRCode from 'qrcode'
+import type { Card, GameState } from '../shared/types'
 
 // Tech Hub カードデータ - 11個の新しいカード
-const techHubCards = [
+const techHubCards: Card[] = [
   { id: 1, title: "最近のAI事情・活用法", description: "AIの最新動向や実際の活用方法などAIについてざっくばらんに話しましょう" },
   { id: 2, title: "今の案件の不満", description: "現在携わっているプロジェクトで困っていることなどなど" },
   { id: 3, title: "おすすめのツール・ガジェット", description: "最近使っているおすすめのツールやガジェットはありますか？" },
@@ -16,7 +18,7 @@ const techHubCards = [
 ]
 
 // Game state - in production this should use a database
-let gameState = {
+let gameState: GameState = {
   availableCards: [...techHubCards],
   usedCards: [],
   currentCard: null,
@@ -24,7 +26,7 @@ let gameState = {
   participants: 0
 }
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
@@ -95,27 +97,32 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (url?.startsWith('/api/qr')) {
-    // For Vercel deployment, return the current domain
-    const host = req.headers.host || 'localhost:3000'
-    const protocol = host.includes('localhost') ? 'http' : 'https'
-    const baseUrl = `${protocol}://${host}`
-    
-    // Simple QR code data URL (you may want to use qrcode library here)
-    const qrCodeData = `data:image/svg+xml;base64,${Buffer.from(`
-      <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
-        <rect width="200" height="200" fill="white"/>
-        <text x="100" y="100" text-anchor="middle" font-family="Arial" font-size="12" fill="black">
-          QR Code: ${baseUrl}
-        </text>
-      </svg>
-    `).toString('base64')}`
-    
-    return res.json({
-      url: baseUrl,
-      qrCode: qrCodeData,
-      ip: host,
-      port: 443
-    })
+    try {
+      // For Vercel deployment, return the current domain
+      const host = req.headers.host || 'localhost:3000'
+      const protocol = host.includes('localhost') ? 'http' : 'https'
+      const baseUrl = `${protocol}://${host}`
+      
+      // Generate actual QR code
+      const qrCodeData = await QRCode.toDataURL(baseUrl, {
+        width: 300,
+        margin: 2,
+        color: {
+          dark: '#667eea',
+          light: '#ffffff'
+        }
+      })
+      
+      return res.json({
+        url: baseUrl,
+        qrCode: qrCodeData,
+        ip: host,
+        port: protocol === 'https' ? 443 : 80
+      })
+    } catch (error) {
+      console.error('QR code generation error:', error)
+      return res.status(500).json({ error: 'QRコード生成に失敗しました' })
+    }
   }
   
   // API only - no HTML serving

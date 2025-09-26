@@ -15,7 +15,12 @@ export const QRDisplay = () => {
     try {
       setLoading(true)
       console.log('QRコード取得開始...')
-      const response = await fetch('/api/qr')
+      // ローカル開発時は直接サーバーにアクセス、本番時はプロキシ経由
+      const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+        ? 'http://localhost:3001/api/qr' 
+        : '/api/qr'
+      console.log('QRコードAPI URL:', apiUrl)
+      const response = await fetch(apiUrl)
       console.log('QRコードレスポンス:', response.status, response.statusText)
       
       if (response.ok) {
