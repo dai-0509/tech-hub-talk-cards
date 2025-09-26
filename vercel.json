@@ -1,20 +1,17 @@
 {
-  "version": 2,
-  "buildCommand": "npm run client:build",
-  "outputDirectory": "dist/client",
   "functions": {
-    "api/index.ts": {
-      "includeFiles": "shared/**"
+    "api/*.ts": {
+      "runtime": "@vercel/node@3.0.0"
     }
   },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/index.ts"
+      "source": "/api/(.*)",
+      "destination": "/api/index"
     },
     {
-      "src": "/(.*)",
-      "dest": "/api/index.ts"
+      "source": "/(.*)",
+      "destination": "/api/index"
     }
   ]
 }
