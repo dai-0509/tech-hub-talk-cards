@@ -59,12 +59,12 @@ export const useSocket = () => {
         const result = await response.json()
         console.log('API response data:', result)
         
-        if (result.success && result.message) {
-          console.log('Card draw initiated:', result.message)
-          // Don't show error - the actual card will come via polling
-        } else if (result.success && result.card && result.gameState) {
+        if (result.success && result.card && result.gameState) {
           console.log('Updating game state with drawn card:', result.card.title)
           setGameState(result.gameState)
+        } else if (result.success && result.message) {
+          console.log('Card draw initiated:', result.message)
+          // Don't show error - the actual card will come via polling
         } else {
           console.error('Invalid response format:', result)
           setError('無効なレスポンス形式です')

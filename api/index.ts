@@ -56,19 +56,25 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: '利用可能なカードがありません！' })
     }
 
-    // Draw a random card
-    const randomIndex = Math.floor(Math.random() * filteredCards.length)
-    const drawnCard = filteredCards[randomIndex]
+    // Set drawing state for animation
+    gameState.isDrawing = true
+    
+    // Simulate drawing delay for animation
+    setTimeout(() => {
+      // Draw a random card
+      const randomIndex = Math.floor(Math.random() * filteredCards.length)
+      const drawnCard = filteredCards[randomIndex]
 
-    // Update game state
-    gameState.availableCards = gameState.availableCards.filter(card => card.id !== drawnCard.id)
-    gameState.usedCards.push(drawnCard)
-    gameState.currentCard = drawnCard
+      // Update game state
+      gameState.availableCards = gameState.availableCards.filter(card => card.id !== drawnCard.id)
+      gameState.usedCards.push(drawnCard)
+      gameState.currentCard = drawnCard
+      gameState.isDrawing = false
+    }, 2000)
     
     return res.json({ 
       success: true, 
-      card: drawnCard, 
-      gameState 
+      message: 'カードを引いています...'
     })
   }
   
