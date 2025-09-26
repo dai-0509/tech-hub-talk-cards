@@ -14,13 +14,18 @@ export const QRDisplay = () => {
   const loadQRCode = async () => {
     try {
       setLoading(true)
+      console.log('QRコード取得開始...')
       const response = await fetch('/api/qr')
+      console.log('QRコードレスポンス:', response.status, response.statusText)
       
       if (response.ok) {
         const data = await response.json()
+        console.log('QRコードデータ取得成功:', data)
         setQrData(data)
       } else {
-        console.error('QRコード取得失敗:', response.status)
+        console.error('QRコード取得失敗:', response.status, response.statusText)
+        const errorText = await response.text()
+        console.error('エラー詳細:', errorText)
         setQrData(null)
       }
     } catch (error) {

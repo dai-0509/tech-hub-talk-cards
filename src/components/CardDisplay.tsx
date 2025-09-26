@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import type { GameState } from '../types'
 
 interface CardDisplayProps {
@@ -5,6 +6,17 @@ interface CardDisplayProps {
 }
 
 export const CardDisplay = ({ gameState }: CardDisplayProps) => {
+  const cardContainerRef = useRef<HTMLDivElement>(null)
+
+  // カードが表示されたら自動スクロール
+  useEffect(() => {
+    if (gameState.currentCard && cardContainerRef.current) {
+      cardContainerRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      })
+    }
+  }, [gameState.currentCard])
   if (gameState.isDrawing) {
     return (
       <div className="card-container">
@@ -26,7 +38,7 @@ export const CardDisplay = ({ gameState }: CardDisplayProps) => {
     const card = gameState.currentCard
 
     return (
-      <div className="card-container">
+      <div className="card-container" ref={cardContainerRef}>
         <div className="drawn-card">
           <h2 className="card-title">{card?.title || 'No Title'}</h2>
           <p className="card-description">{card?.description || 'No Description'}</p>
