@@ -4,9 +4,10 @@ interface ControlsProps {
   gameState: GameState
   onDrawCard: () => void
   onReset: () => void
+  onClearCard?: () => void
 }
 
-export const Controls = ({ gameState, onDrawCard, onReset }: ControlsProps) => {
+export const Controls = ({ gameState, onDrawCard, onReset, onClearCard }: ControlsProps) => {
   const availableCount = gameState.availableCards.length
 
   return (
@@ -20,6 +21,14 @@ export const Controls = ({ gameState, onDrawCard, onReset }: ControlsProps) => {
           {gameState.isDrawing ? '引いています...' : 
            availableCount === 0 ? 'カードなし' : 'カードを引く'}
         </button>
+        {gameState.currentCard && onClearCard && (
+          <button 
+            className="btn btn-secondary"
+            onClick={onClearCard}
+          >
+            TOPに戻る
+          </button>
+        )}
         <button 
           className="btn btn-secondary"
           onClick={() => {

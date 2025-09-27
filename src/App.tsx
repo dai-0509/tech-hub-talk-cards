@@ -22,6 +22,15 @@ function App() {
     drawCard()
   }
 
+  const handleClearCard = () => {
+    // カード表示をクリアしてTOPに戻る（ローカル状態のみ変更）
+    if (window.location.pathname !== '/') {
+      window.location.href = '/'
+    }
+    // リロードしてクリーンな状態に戻る
+    window.location.reload()
+  }
+
   if (isAdmin) {
     return (
       <ErrorBoundary>
@@ -48,6 +57,7 @@ function App() {
             gameState={gameState}
             onDrawCard={handleDrawCard}
             onReset={resetGame}
+            onClearCard={handleClearCard}
           />
           
           <QRDisplay />
